@@ -2,6 +2,7 @@ import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:movieshow/constants.dart';
 import 'package:movieshow/helper.dart';
+import 'package:movieshow/pages/details.dart';
 import 'package:movieshow/providers/home_providers.dart';
 import 'package:provider/provider.dart';
 import 'package:auto_size_text/auto_size_text.dart';
@@ -10,9 +11,14 @@ import 'package:carousel_slider/carousel_slider.dart';
 import '../widgets/best_movies.dart';
 import '../widgets/top10wid.dart';
 
-class Home extends StatelessWidget {
+class Home extends StatefulWidget {
   const Home({Key? key}) : super(key: key);
 
+  @override
+  State<Home> createState() => _HomeState();
+}
+
+class _HomeState extends State<Home> {
   @override
   Widget build(BuildContext context) {
     var provider = Provider.of<HomeProvider>(context);
@@ -52,29 +58,60 @@ class Home extends StatelessWidget {
             ),
             SizedBox(
               height: size.height * 0.3,
-              child: InkWell(
-                onTap: () {
-                  provider.getWatchKey(provider.movieList[1].id);
-                },
-                child: provider.movieList.isEmpty
-                    ? Center(
-                        child: CircularProgressIndicator(),
-                      )
-                    : CarouselSlider.builder(
-                        itemCount: provider.movieList.length,
-                        itemBuilder: (context, index, realIndex) {
-                          return Top10Wid(
+              child: provider.movieList.isEmpty
+                  ? Center(
+                      child: CircularProgressIndicator(),
+                    )
+                  : CarouselSlider.builder(
+                      itemCount: provider.movieList.length,
+                      itemBuilder: (context, index, realIndex) {
+                        return InkWell(
+                          onTap: () {
+                            showDialog(
+                                context: context,
+                                builder: (context) {
+                                  return AlertDialog(
+                                    content: Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceAround,
+                                      children: [
+                                        Text(
+                                          "loading",
+                                          style: TextStyle(fontSize: 25),
+                                        ),
+                                        CircularProgressIndicator()
+                                      ],
+                                    ),
+                                  );
+                                });
+                            provider
+                                .getWatchKey(provider.movieList[index].id)
+                                .then((value) {
+                              Navigator.pushReplacement(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => Details(
+                                        id: value,
+                                        overView:
+                                            provider.movieList[index].overview,
+                                        poster: provider
+                                            .movieList[index].poster_path,
+                                        title: provider.movieList[index].title),
+                                  ));
+                            });
+                          },
+                          child: Top10Wid(
                             size: size,
                             img: provider.movieList[index].poster_path,
                             rate: provider.movieList[index].vote_average,
                             title: provider.movieList[index].title,
-                          );
-                        },
-                        options: CarouselOptions(
-                            enableInfiniteScroll: false,
-                            enlargeCenterPage: true,
-                            autoPlayAnimationDuration: Duration(seconds: 1))),
-              ),
+                          ),
+                        );
+                      },
+                      options: CarouselOptions(
+                          enableInfiniteScroll: false,
+                          enlargeCenterPage: true,
+                          autoPlayAnimationDuration: Duration(seconds: 1))),
             ),
             Padding(
               padding: const EdgeInsets.all(10),
@@ -89,12 +126,46 @@ class Home extends StatelessWidget {
                 scrollDirection: Axis.horizontal,
                 itemCount: provider.movieList2.length,
                 itemBuilder: (context, index) {
-                  return BestMovieWid(
-                    size: size,
-                    name: provider.movieList2[index].title,
-                    poster: provider.movieList2[index].poster_path,
-                    rate: provider.movieList2[index].vote_average,
-                    len: provider.movieList2,
+                  return InkWell(
+                    onTap: () {
+                      showDialog(
+                          context: context,
+                          builder: (context) {
+                            return AlertDialog(
+                              content: Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceAround,
+                                children: [
+                                  Text(
+                                    "loading",
+                                    style: TextStyle(fontSize: 25),
+                                  ),
+                                  CircularProgressIndicator()
+                                ],
+                              ),
+                            );
+                          });
+                      provider
+                          .getWatchKey(provider.movieList[index].id)
+                          .then((value) {
+                        Navigator.pushReplacement(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => Details(
+                                  id: value,
+                                  overView: provider.movieList[index].overview,
+                                  poster: provider.movieList[index].poster_path,
+                                  title: provider.movieList[index].title),
+                            ));
+                      });
+                    },
+                    child: BestMovieWid(
+                      size: size,
+                      name: provider.movieList2[index].title,
+                      poster: provider.movieList2[index].poster_path,
+                      rate: provider.movieList2[index].vote_average,
+                      len: provider.movieList2,
+                    ),
                   );
                 },
               ),

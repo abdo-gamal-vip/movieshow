@@ -8,11 +8,7 @@ import 'dart:convert';
 
 class HomeProvider extends ChangeNotifier {
   HomeProvider() {
-    getMovies(1);
-    getMovies(2);
-    getMovies(3);
-
-    notifyListeners();
+    getAllData();
   }
   final String apikey = "29978f9f030a4e161a6b7edd9a359cf6";
 
@@ -41,7 +37,6 @@ class HomeProvider extends ChangeNotifier {
         movieList3.add(Movie.fromMap(i));
       }
     }
-    notifyListeners();
   }
 
   Future<String> getWatchKey(int id) async {
@@ -50,5 +45,12 @@ class HomeProvider extends ChangeNotifier {
     var response = await http.get(url);
     var responseBody = json.decode(response.body);
     return responseBody["results"][0]["key"];
+  }
+
+  Future<void> getAllData() async {
+    await getMovies(1);
+    await getMovies(2);
+    await getMovies(3);
+    notifyListeners();
   }
 }
